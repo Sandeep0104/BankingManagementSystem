@@ -14,9 +14,11 @@ if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     )
 else:
     url = SQLALCHEMY_DATABASE_URL.strip()
-    if url.startswith("postgres://") or url.startswith("postgresql://"):
+    # Use a robust split approach to swap the protocol scheme to postgresql+psycopg
+    if "://" in url:
         scheme, rest = url.split("://", 1)
-        SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg://{rest}"
+        if scheme in ("postgres", "postgresql"):
+            SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg://{rest}"
 
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
