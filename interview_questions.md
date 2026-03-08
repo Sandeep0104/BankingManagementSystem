@@ -58,3 +58,10 @@
 2.  **Database:** Migrate from JSON to SQLite for reliability.
 3.  **Concurrency:** Handle multiple users accessing data simultaneously (locking).
 4.  **Transaction History:** Instead of just updating the balance, verify a separate ledger of transactions to show a statement."
+
+
+
+
+
+mail/SMS Alerts: Integrate a notification API (like Twilio or SendGrid) to send real-time alerts whenever a withdrawal, deposit, or login occurs.
+PDF Account Statements: Upgrade the "Transaction History" page to allow users to generate and download official, formatted PDF bank statements for a selected date range.

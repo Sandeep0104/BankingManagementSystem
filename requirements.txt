@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+sqlalchemy
+requests
+pydantic
+passlib[bcrypt]
+PyJWT
+pyotp
+qrcode
+psycopg2-binary==2.9.9
+python-dotenv==1.0.1
