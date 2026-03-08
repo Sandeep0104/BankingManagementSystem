@@ -9,3 +9,5 @@ pyotp
 qrcode
 psycopg[binary,pool]
 python-dotenv==1.0.1
+streamlit
+pandas
