@@ -1,28 +1,26 @@
 import os
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./bank.db")
+_raw_url = os.getenv("DATABASE_URL", "sqlite:///./bank.db")
 
-if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+if _raw_url.startswith("sqlite"):
     engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
+        _raw_url,
         connect_args={"check_same_thread": False}
     )
 else:
-    url = SQLALCHEMY_DATABASE_URL.strip()
-    # Use a robust split approach to swap the protocol scheme to postgresql+psycopg
-    if "://" in url:
-        scheme, rest = url.split("://", 1)
-        if scheme in ("postgres", "postgresql"):
-            SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg://{rest}"
-
+    # Parse the URL and force the drivername to use psycopg (v3)
+    # This is the most reliable method - avoids all string manipulation edge cases
+    parsed = make_url(_raw_url)
+    final_url = parsed.set(drivername="postgresql+psycopg")
+    
     engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        connect_args={"sslmode": "require"},
+        final_url,
         pool_size=5,
         max_overflow=10,
         pool_pre_ping=True
