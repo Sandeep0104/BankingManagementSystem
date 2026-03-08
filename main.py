@@ -1,5 +1,7 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -9,7 +11,22 @@ from database import engine, get_db
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="NexaBank API")
+# Disable API documentation in production to prevent unauthorized api exploration
+is_production = os.getenv("ENVIRONMENT") == "production"
+app = FastAPI(
+    title="NexaBank API",
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc",
+)
+
+# CORS Configuration for API safety and broad accessibility from frontends
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
