@@ -6,10 +6,35 @@ from sqlalchemy.orm import Session
 from typing import List
 
 import models, schemas, crud, auth
-from database import engine, get_db
+from database import engine, get_db, SessionLocal
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
+
+# Seed default staff accounts on first boot
+def seed_default_users():
+    db = SessionLocal()
+    try:
+        defaults = [
+            {"username": "manager", "password": "manager123", "role": "manager"},
+            {"username": "teller", "password": "teller123", "role": "teller"},
+        ]
+        for user_data in defaults:
+            existing = db.query(models.User).filter(models.User.username == user_data["username"]).first()
+            if not existing:
+                hashed = auth.get_password_hash(user_data["password"])
+                new_user = models.User(
+                    username=user_data["username"],
+                    password_hash=hashed,
+                    role=user_data["role"]
+                )
+                db.add(new_user)
+                db.commit()
+                print(f"✅ Created default {user_data['role']}: {user_data['username']}")
+    finally:
+        db.close()
+
+seed_default_users()
 
 # Disable API documentation in production to prevent unauthorized api exploration
 is_production = os.getenv("ENVIRONMENT") == "production"
